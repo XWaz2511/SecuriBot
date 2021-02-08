@@ -3,3 +3,4 @@ Lien d'ajout du bot: https://discord.com/api/oauth2/authorize?client_id=80695378
 Préfixe: # .
 Taper #help pour voir les commandes.
 Les requirements pour le projet sont disponibles dans le fichier securibot_requirements.txt (rappel: taper pip install -r securibot_requirements.txt pour les installer plus rapidement et facilement).
+The English version will be developed when the final version of SecuriBot in French is completed. For the moment, French only.
