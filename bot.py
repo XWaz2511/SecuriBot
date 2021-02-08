@@ -1,12 +1,12 @@
 # Importation des librairies (os, dotenv, commands de discord.ext, datetime de datetime et discord.py).
 import os
-import dotenv as de
+from dotenv import load
 from discord.ext import commands
 from datetime import datetime
 import discord
 
 # Chargement du fichier contenant les variables d'environnement du bot.
-de.load_dotenv(dotenv_path="/root/bot-discord/.env")
+load("/root/home/xwaz/securibot/.env")
 
 # Démarrage du bot et insertion de cet évènement dans les logs.
 print("\n{}: Bot starting...".format(str(datetime.now())))
@@ -16,6 +16,14 @@ logs_file.close()
 intents = discord.Intents.all()
 intents.members=True
 bot = commands.Bot(command_prefix="#", help_command=None, Intents=intents)
+
+
+async def display_information_message(ctx):
+    information_message = str(os.getenv("INFORMATION_MESSAGE"))
+    if len(information_message) > 0:
+        await ctx.message.channel.send(information_message)
+    else:
+        pass
 
 
 # Insert, quand une commande est utilisée, l'heure à laquelle elle a été utilisée, l'id et le nom de l'utilisateur, le nom de la commande et ses arguments, ainsi que l'id et le nom du channel et du serveur dans lequel la commande a été utilisée.
@@ -28,6 +36,7 @@ def insert_in_logs(user_id, user_name, command_name, command_args, channel_id, c
     channel_name = str(channel_name)
     guild_id = str(guild_id)
     guild_name = str(guild_name)
+    command_args = command_args.split(" ")
     
     if len(command_args) > 0:
         for arg in command_args:
@@ -53,6 +62,26 @@ async def on_ready():
     logs_file.close()    
 
 
+# Récupère un problème rapporté par un utilisateur, inscrit l'évènement dans les logs, l'affiche sur la console et l'enregistre dans le fichier reports_file.txt.
+@bot.command(name="report")
+async def report_problem(ctx, *, args):
+    user_id = str(ctx.message.author.id)
+    user_name = str(ctx.message.author.name)
+    command_name = "#report"
+    command_args = str(args)
+    channel_id = str(ctx.message.channel.id)
+    channel_name = str(ctx.message.channel.name)
+    guild_id = str(ctx.message.guild.id)
+    guild_name = str(ctx.message.guild.name)
+    insert_in_logs(user_id, user_name, command_name, command_args, channel_id, channel_name, guild_id, guild_name)
+    await display_information_message(ctx)
+    reports_file = open("reports.txt", "a")
+    reports_file.write("{}: Problème reporté par l'utilisateur {} ({}): {}.\n\n".format(str(datetime.now()), user_id, user_name, args))
+    reports_file.close()
+    await ctx.message.channel.send("Merci ! Votre message a bien été envoyé ! Le problème sera traité au plus vite.")
+
+
+
 # Affiche de l'aide pour toutes les commandes disponibles avec le bot.
 @bot.command(name="help")
 async def display_help(ctx):
@@ -65,6 +94,7 @@ async def display_help(ctx):
     guild_id = str(ctx.message.guild.id)
     guild_name = str(ctx.message.guild.name)
     insert_in_logs(user_id, user_name, command_name, command_args, channel_id, channel_name, guild_id, guild_name)
+    await display_information_message(ctx)
     await ctx.message.channel.send("**Commandes disponibles :**\n\n**Commandes bientôt disponibles :**\n\n> `#anonymisation`: Fournit des liens permettant de télécharger des logiciels pour anonymiser votre PC.")
 
 
